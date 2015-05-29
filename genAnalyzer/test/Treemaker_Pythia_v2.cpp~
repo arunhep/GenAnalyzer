@@ -1,0 +1,484 @@
+#include<vector>
+#include "TLorentzVector.h"
+double deltaR(double eta1, double phi1, double eta2, double phi2);
+double DeltaPhi(double phi1, double phi2);
+using namespace std;
+void Treemaker_Pythia_v2()
+{
+
+//TFile f1("HWW_125GeV_13TeV_Powheg_withWeight.root");
+//TFile f1("HWW_125GeV_13TeV_MCNLO_withWeight.root");
+TFile f1("HWW_125GeV_13TeV_MCNLO_withWeight_MS35.root");
+TTree *T1 = (TTree*)f1.Get("tree");
+
+//TFile *file = new TFile("HWW_125GeV_13TeV_Powheg_forplot_21May.root","RECREATE");
+TFile *file = new TFile("HWW_125GeV_13TeV_MCNLO_forplot_29May_MS35.root","RECREATE");
+
+TTree *gen_tree = new TTree("gen_tree"," after preselections tree");
+
+//branch declarations
+
+    vector<double>  *Event;
+   vector<double>  *Run;
+   Int_t           ngenW;
+   vector<double>  *genWPt;
+   vector<double>  *genWEta;
+   vector<double>  *genWPhi;
+   vector<double>  *genWMass;
+   vector<double>  *genWQ;
+   vector<int>     *genWstatus;
+   vector<int>     *genWMother;
+   Int_t           ngenH;
+   vector<double>  *genHPt;
+   vector<double>  *genHEta;
+   vector<double>  *genHPhi;
+   vector<double>  *genHMass;
+   vector<double>  *genHQ;
+   vector<int>     *genHstatus;
+   vector<int>     *genHdaughter;
+   Int_t          ngenLept;
+   vector<double>  *genLeptPt;
+   vector<double>  *genLeptEta;
+   vector<double>  *genLeptPhi;
+   vector<double>  *genLeptM;
+   vector<int>     *genLeptStatus;
+   vector<int>     *genLeptId;
+   vector<int>     *genLeptMother;
+   vector<int>     *genLeptGrandMother;
+   vector<double>  *genJetPt;
+   vector<double>  *genJetEta;
+   vector<double>  *genJetPhi;
+   vector<double>  *genJetMass;
+   vector<double>  *genCaloMET;
+   vector<double>  *genTrueMET;
+   vector<double>  *genTrueMETPhi;
+   vector<double>  *genNPMET;
+   Int_t           ngenJet;
+   Int_t           ngenNu;
+   vector<double>  *genNuPt;
+   vector<double>  *genNuEta;
+   vector<double>  *genNuPhi;
+   vector<double>  *genNuQ;
+   vector<int>     *genNustatus;
+   vector<int>     *genNuMother;
+   vector<int>     *genNuGrandMother;
+   vector<int> *genNuPdgId;
+   Double_t startWeight;
+
+
+//reading tree
+
+   T1->SetBranchAddress("ngenW", &ngenW);
+   T1->SetBranchAddress("genWPt", &genWPt);
+   T1->SetBranchAddress("genWEta", &genWEta);
+   T1->SetBranchAddress("genWPhi", &genWPhi);
+   T1->SetBranchAddress("genWMass", &genWMass);
+   T1->SetBranchAddress("genWstatus", &genWstatus);
+   T1->SetBranchAddress("genWMother", &genWMother);
+   T1->SetBranchAddress("ngenH", &ngenH);
+   T1->SetBranchAddress("genHPt", &genHPt);
+   T1->SetBranchAddress("genHEta", &genHEta);
+   T1->SetBranchAddress("genHPhi", &genHPhi);
+   T1->SetBranchAddress("genHMass", &genHMass);
+   T1->SetBranchAddress("genHstatus", &genHstatus);
+   T1->SetBranchAddress("genHdaughter", &genHdaughter);
+   T1->SetBranchAddress("ngenLept", &ngenLept);
+   T1->SetBranchAddress("genLeptPt", &genLeptPt);
+   T1->SetBranchAddress("genLeptEta", &genLeptEta);
+   T1->SetBranchAddress("genLeptPhi", &genLeptPhi);
+   T1->SetBranchAddress("genLeptStatus", &genLeptStatus);
+   T1->SetBranchAddress("genLeptId", &genLeptId);
+   T1->SetBranchAddress("genLeptM", &genLeptM);
+   T1->SetBranchAddress("genLeptMother", &genLeptMother);
+   T1->SetBranchAddress("genLeptGrandMother", &genLeptGrandMother);
+   T1->SetBranchAddress("genJetPt", &genJetPt);
+   T1->SetBranchAddress("genJetEta", &genJetEta);
+   T1->SetBranchAddress("genJetPhi", &genJetPhi);
+   T1->SetBranchAddress("genJetMass", &genJetMass);
+   T1->SetBranchAddress("genCaloMET", &genCaloMET);
+   T1->SetBranchAddress("genTrueMET", &genTrueMET);
+   T1->SetBranchAddress("genNPMET", &genNPMET);
+   T1->SetBranchAddress("ngenJet", &ngenJet);
+   T1->SetBranchAddress("genTrueMETPhi", &genTrueMETPhi);
+   T1->SetBranchAddress("ngenNu", &ngenNu);
+   T1->SetBranchAddress("genNuPt", &genNuPt);
+   T1->SetBranchAddress("genNuEta", &genNuEta);
+   T1->SetBranchAddress("genNuPhi", &genNuPhi);
+   T1->SetBranchAddress("genNuQ", &genNuQ);
+   T1->SetBranchAddress("genNustatus", &genNustatus);
+   T1->SetBranchAddress("genNuMother", &genNuMother);
+   T1->SetBranchAddress("genNuGrandMother", &genNuGrandMother);
+   T1->SetBranchAddress("genNuPdgId", &genNuPdgId);
+   T1->SetBranchAddress("startWeight",&startWeight);
+
+double lead_lept_pt;
+double sublead_lept_pt;
+double W_lead_mass;
+double W_lead_pt;
+double W_lead_eta;
+double W_sublead_mass;
+double W_sublead_pt;
+double W_sublead_eta;
+double H_mass;
+double H_pt;
+double H_eta;
+int ev_type;
+double jet_lead_pt;
+double jet_lead_phi;
+double jet_lead_mass;
+double jet_sublead_pt;
+double jet_sublead_eta;
+double jet_sublead_phi;
+double jet_sublead_mass;
+double jet_lead_eta;
+int njets;
+int number_trackjets;
+int count_vbf;
+double CaloMET;
+double TrueMET;
+double NPMET;
+double invmass_jets;
+double deltaEta_jets;
+double deltaPhi_ll;
+bool vbf_type;
+bool vbf_type_veto;
+int nleptons;
+double dilepmass;
+double WWTransMass;
+double evtweight;
+double sumweight;
+
+ //setting branches to new tree  
+//gen_tree->Branch("nleptons", &nleptons, "nleptons/I");
+gen_tree->Branch("evtweight",&evtweight,"evtweight/D");
+gen_tree->Branch("sumweight",&sumweight,"sumweight/D");
+gen_tree->Branch("lead_lept_pt", &lead_lept_pt, "lead_lept_pt/D");
+gen_tree->Branch("sublead_lept_pt", &sublead_lept_pt, "sublead_lept_pt/D");
+gen_tree->Branch("W_lead_mass", &W_lead_mass ,"W_lead_mass/D");
+gen_tree->Branch("W_lead_pt", &W_lead_pt ,"W_lead_pt/D");
+gen_tree->Branch("W_lead_eta", &W_lead_eta ,"W_lead_eta/D");
+gen_tree->Branch("W_sublead_mass", &W_sublead_mass ,"W_sublead_mass/D");
+gen_tree->Branch("W_sublead_pt", &W_sublead_pt ,"W_sublead_pt/D");
+gen_tree->Branch("W_sublead_eta", &W_sublead_eta ,"W_sublead_eta/D");
+gen_tree->Branch("H_mass", &H_mass ,"H_mass/D");
+gen_tree->Branch("H_pt", &H_pt ,"H_pt/D");
+gen_tree->Branch("H_eta", &H_eta ,"H_eta/D");
+gen_tree->Branch("jet_lead_pt", &jet_lead_pt ,"jet_lead_pt/D");
+gen_tree->Branch("jet_sublead_pt", &jet_sublead_pt ,"jet_sublead_pt/D");
+gen_tree->Branch("jet_lead_eta", &jet_lead_eta ,"jet_lead_eta/D");
+gen_tree->Branch("njets", &njets ,"njets/I");
+gen_tree->Branch("count_vbf", &count_vbf ,"count_vbf/I");
+gen_tree->Branch("CaloMET", &CaloMET, "CaloMET/D");
+gen_tree->Branch("TrueMET", &TrueMET, "TrueMET/D");
+gen_tree->Branch("NPMET", &NPMET, "NPMET/D");
+gen_tree->Branch("invmass_jets", &invmass_jets, "invmass_jets/D");
+gen_tree->Branch("dilepmass", &dilepmass, "dilpemass/D");
+gen_tree->Branch("WWTransMass", &WWTransMass, "WWTransMass/D");
+gen_tree->Branch("deltaEta_jets",&deltaEta_jets, "deltaEta_jets/D");
+gen_tree->Branch("deltaPhi_ll" , &deltaPhi_ll, "deltaPhi_ll/D");
+gen_tree->Branch("vbf_type", &vbf_type, "vbf_type/O");
+gen_tree->Branch("vbf_type_veto", &vbf_type_veto, "vbf_type_veto/O");
+
+TLorentzVector lept1,lept2,sumlept,Z1,Z2,H1,jet1,jet2,sumjet;
+
+int counter = 0;
+//int n_jets = 0;
+int num_trackjets = 0;
+int num_vbfjets = 0;
+bool cleanjet;
+int id = 0;
+int ev_type;
+double tmpweight;
+
+vector<double> cleanjets;
+cleanjets.clear();
+vector<double> cleanjetsEta;
+cleanjetsEta.clear();
+vector<double> cleanjetsPhi;
+cleanjetsPhi.clear();
+vector<double> cleanjetsMass;
+cleanjetsMass.clear();
+//vector<double> leptPT;
+//leptPT.clear();
+
+//filling new tree
+
+// event categories: 2E=1,2MU=2,2Tau=3,EMU=4,ETau=5,MUTau=6
+
+   Int_t nentries = (Int_t)T1->GetEntries();
+cout<<"nentries=  "<<nentries<<endl;
+for (Int_t i=0;i<nentries;i++) {
+     T1->GetEntry(i);
+
+if (i % 100000 == 1) cout << i <<endl;
+
+
+double PT1 = -999.;
+double PT2 = -999.;
+double ETA1 = -999.;
+double ETA2 = -999.;
+double PHI1= -999.;
+double PHI2 = -999.;
+int STAT1 = -999.;
+int STAT2 = -999.;
+double MASS1 = -999.;
+double MASS2 = -999.;
+int MOTHER1 = -999;
+int MOTHER2 = -999;
+int GMOTHER1 = -999;
+int GMOTHER2 = -999;
+double lead_pt = -999.;
+double sublead_pt = -999.;
+double dilepEta = -999.;
+double dilepPt = -999.;
+double dilepPhi = -999.;
+double res = -999.;
+double TrueMETPhi = -999.;
+double transverseMassWW = -999.;
+
+//cout<<"ngenLept"<<ngenLept<<endl;
+tmpweight = startWeight;
+sumweight = sumweight + tmpweight;
+
+//cout << "startweight = " << startWeight << endl;
+//cout << "sumweight = " << sumweight << endl;
+
+if(ngenLept == 2){
+
+
+for (int x = 0; x < ngenLept; x++) {
+PT1 = genLeptPt->at(0);
+PT2 = genLeptPt->at(1);
+ETA1= genLeptEta->at(0);
+ETA2 = genLeptEta->at(1);
+PHI1 = genLeptPhi->at(0);
+PHI2 = genLeptPhi->at(1);
+STAT1 = genLeptStatus->at(0);
+STAT2 = genLeptStatus->at(1);
+MOTHER1 = genLeptMother->at(0);
+MOTHER2 = genLeptMother->at(1);
+GMOTHER1 = genLeptGrandMother->at(0);
+GMOTHER2 = genLeptGrandMother->at(1);
+MASS1 = genLeptM->at(0); 
+MASS2 = genLeptM->at(1);
+}
+
+if(PT1>PT2){
+lead_pt = PT1;
+sublead_pt = PT2;
+} else {
+lead_pt = PT2;
+sublead_pt = PT1;
+}
+//cout << "PT1 = " << PT1 << " leading lepton PT = " << lead_lept_pt << endl;
+
+//cout << "PT2 = " << PT2 << " subleading lepton PT = " << sublead_lept_pt << endl;
+
+//if(lead_pt > 20. && sublead_pt > 10 && fabs(ETA1) < 2.5 && fabs(ETA2) < 2.5) {
+//if(lead_pt > 20. && sublead_pt > 10 && fabs(ETA1) < 2.5 && fabs(ETA2) < 2.5) {
+
+
+evtweight = startWeight;
+
+lead_lept_pt = lead_pt;
+sublead_lept_pt = sublead_pt;
+
+W_lead_pt = genWPt->at(0);
+W_sublead_pt = genWPt->at(1);
+W_lead_mass = genWMass->at(0);
+W_sublead_mass = genWMass->at(1);
+W_lead_eta = genWEta->at(0);
+W_sublead_eta = genWEta->at(1);
+
+H_mass = genHMass->at(0);
+H_pt = genHPt->at(0);
+CaloMET = genCaloMET->at(0);
+TrueMET = genTrueMET->at(0);
+TrueMETPhi = genTrueMETPhi->at(0);
+NPMET = genNPMET->at(0);
+
+double dphi_ll = -999.;
+
+dphi_ll = DeltaPhi(PHI1,PHI2);
+
+deltaPhi_ll = dphi_ll;
+
+lept1.TLorentzVector::SetPtEtaPhiM(PT1,ETA1,PHI1,MASS1);
+lept2.TLorentzVector::SetPtEtaPhiM(PT2,ETA2,PHI2,MASS2);
+sumlept = lept1+lept2;
+dilepmass = sumlept.M();
+
+dilepEta = sumlept.Eta();
+dilepPt = sumlept.Pt();
+dilepPhi = sumlept.Phi();
+res = dilepPhi - TrueMETPhi;
+
+transverseMassWW = sqrt(2*dilepPt*TrueMET*(1- cos(res)));
+
+WWTransMass = transverseMassWW;
+
+//cout << "deltaPhi_ll = " << deltaPhi_ll << endl;
+
+//cout << "number of jets = " << ngenJet << endl;
+//cout << "ngenMu = " << ngenMu << endl;
+//cout << "ngenEle = " << ngenEle << endl;
+//cout << "ngenTau = " << ngenTau << endl;
+//cout << "ev_type = " << ev_type << endl;
+
+int n_jets = 0;
+double jetEta = -999.;
+double jetPhi = -999.;
+double jetmass = -999.;
+bool vbf_flag = false;
+bool vbf_flag_veto = false;
+double jetEta1,jetPhi1,leptEta1,leptPhi1,leptEta2,leptPhi2,jetPT1,NuEta1,NuPhi1;
+
+for (int y = 0; y < ngenJet; y++) {
+cleanjet = true;
+counter ++;
+jetEta1 = genJetEta->at(y);
+jetPhi1 = genJetPhi->at(y);
+
+leptEta1= ETA1;
+leptPhi1 = PHI1;
+double dR_mu = deltaR(leptEta1,leptPhi1,jetEta1,jetPhi1);
+//cout << " dR_mu = " << dR_mu << endl;
+if (dR_mu < 0.4) cleanjet = false;
+
+leptEta2= ETA2;
+leptPhi2 = PHI2;
+double dR_ele = deltaR(leptEta2,leptPhi2,jetEta1,jetPhi1);
+//cout << " dR_ele = " << dR_ele << endl;
+if (dR_ele < 0.4) cleanjet = false;
+
+for(int gen3 = 0; gen3<ngenNu; gen3++){
+NuEta1= genNuEta->at(gen3);
+NuPhi1 = genNuPhi->at(gen3);
+double dR_nu = deltaR(NuEta1,NuPhi1,jetEta1,jetPhi1);
+//cout << " dR_tau = " << dR_tau << endl;
+if (dR_nu < 0.4) cleanjet = false;
+} // number of gen neutrinos
+
+if(cleanjet) n_jets++;
+if(cleanjet){
+jetPT1 = genJetPt->at(y);
+cleanjets.push_back(jetPT1);
+jetEta = genJetEta->at(y);
+jetPhi = genJetPhi->at(y);
+jetmass = genJetMass->at(y);
+//cout << "jetEta = " << jetEta << endl;
+cleanjetsEta.push_back(jetEta);
+cleanjetsPhi.push_back(jetPhi);
+cleanjetsMass.push_back(jetmass);
+//cout << " genJetMass->(y) = " << genJetMass->at(y) << endl;
+}
+//} //cleanjets
+} // number of jets loop
+
+//cout << "Number of Jets left after PT Cut = " << counter << endl;
+//cout << "Number of Jets left after PT Cut and cleaning = " << n_jets << endl;
+//cout << "cleanjet = " << cleanjet << endl;
+
+int cjet_size = cleanjets.size();
+njets = n_jets;
+//cout << "Number of clean jets = " << cjet_size << endl;
+
+//sort(cleanjets.begin(),cleanjets.end());
+if(cleanjets.size() >= 1){
+jet_lead_pt = cleanjets.at(0);
+jet_lead_eta = cleanjetsEta.at(0);
+jet_lead_phi = cleanjetsPhi.(0);
+jet_lead_mass = cleanjetsMass.at(0);
+//cout << "cleanjets.at(cjet) = " << cleanjets.at(cjet) << endl;
+}
+else {
+jet_lead_pt = -999.;
+jet_lead_eta = -999.;
+}
+
+if(cjet_size > 1){
+jet_sublead_pt = cleanjets.at(1);
+jet_sublead_eta = cleanjetsEta.at(1);
+jet_sublead_phi = cleanjetsPhi.(1);
+jet_sublead_mass = cleanjetsMass.at(1);
+//cout << "Eta of Leading Jet = " << cleanjetsEta.at(0) << endl;
+//cout << "Eta of Sub-Leading Jet = " << cleanjetsEta.at(1) << endl;
+deltaEta_jets = (jet_lead_eta - jet_sublead_eta);
+jet1.TLorentzVector::SetPtEtaPhiM(jet_lead_pt,jet_lead_eta,jet_lead_phi,jet_lead_mass);
+jet2.TLorentzVector::SetPtEtaPhiM(jet_sublead_pt,jet_sublead_eta,jet_sublead_phi,jet_sublead_mass);
+sumjet = jet1+jet2;
+invmass_jets = sumjet.M();
+
+if(invmass_jets > 500 && fabs(deltaEta_jets) > 4.0) {
+vbf_flag = true;
+//num_vbfjets++;
+}
+//cout << "jet_lead_eta = " << jet_lead_eta <<  " jet_lead_phi = " << cleanjetsPhi.at(0) << "jet_lead_mass = " << cleanjetsMass.at(0) << "Invariant Mass = " << invmass_jets << endl;
+} //cjets_size loop
+else {
+jet_sublead_pt = -999.;
+invmass_jets = -999.;
+deltaEta_jets = -999.;
+}
+if(vbf_flag) num_vbfjets++ ;
+count_vbf = num_vbfjets;
+vbf_type = vbf_flag;
+
+if(cjet_size > 2) {
+for(int cjet = 2; cjet < cjet_size; cjet++){
+double deta1 = cleanjetsEta.at(cjet) - cleanjetsEta.at(0);
+double deta2 = cleanjetsEta.at(cjet) - cleanjetsEta.at(1);
+if(invmass_jets > 500 && fabs(deltaEta_jets) > 4.0 && ((fabs(deta1) > fabs(deltaEta_jets)) || (fabs(deta2) > fabs(deltaEta_jets)))) {
+vbf_flag_veto = true;
+}
+}
+}
+
+vbf_type_veto = vbf_flag_veto;
+
+//cout << "deltaEta_jets = " << deltaEta_jets << endl;
+//if(cjet_size > 0){
+//jet_lead_pt = cleanjets.at(cjet_size-1);
+cleanjets.clear();
+cleanjetsEta.clear();
+cleanjetsPhi.clear();
+cleanjetsMass.clear();
+//}
+//cout << "lead_jet_pt = " << jet_lead_pt << endl;
+//cout << "num_trackjets = " << num_trackjets << endl;
+//cout << "num_vbfjets = " << num_vbfjets << endl;
+//number_trackjets = num_trackjets;
+//count_vbf = num_vbfjets;
+//cout << "*********************" << endl;
+//if(genJetPt->size() != 0) {
+//jet_lead_pt = genJetPt->at(0);
+//jet_sublead_pt = genJetPt->at(1);
+//}
+//njets = ngenJet;
+
+
+//} // Acceptance Cuts for Leptons
+
+} // nlept ==2 
+
+gen_tree->Fill();
+
+//cout << "*******************************************" << endl;
+
+} // event loop
+cout << "sumweight = " << sumweight << endl;
+file->Write();
+} // main ends
+
+double deltaR(double eta1, double phi1, double eta2, double phi2) {
+double deta = eta1 - eta2;
+double dphi = std::abs(phi1-phi2);
+if(dphi > 3.1415) dphi -= 6.2830;
+return std::sqrt(deta*deta + dphi*dphi);
+}
+double DeltaPhi(double phi1, double phi2)
+{
+double res = phi1 - phi2;
+if (fabs(res) > 3.1415) res = atan2(sin(res), cos(res));
+return res;
+}

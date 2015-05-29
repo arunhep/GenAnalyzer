@@ -1,0 +1,651 @@
+#include<TH1F>
+void plot_MS()  {
+
+TFile f1("HWW_125GeV_13TeV_MCNLO_forplot_21May.root");
+TFile f2("HWW_125GeV_13TeV_Powheg_forplot_21May.root");
+
+TTree *T1 = (TTree*)f1.Get("gen_tree");
+TTree *T2 = (TTree*)f2.Get("gen_tree");
+
+
+TFile * file = new TFile("plots_HWW_28May.root","RECREATE"); 
+
+double scale_p = 0.000660845;
+double scale_m = 0.000006083;
+//========================================================================== canvas 8 starts =======================
+ 
+TCanvas *c8 = new TCanvas("c8", "c8",201,27,989,682);
+  c8->SetFillColor(0);
+ // c8->SetFrameFillColor(0);
+  c8->SetFrameBorderSize(1);
+  c8->Divide(2,2);
+//  c8->SetFrameBorderMode(-1);
+    c8->SetLogy(0);
+
+TLegend *tleg1_7 = new TLegend(0.6073393,0.687373,0.8040398,0.8525152,NULL,"brNDC");
+c8->cd(1);
+TH1F *j15_1 = new TH1F("j15_1","Leading Jet PT (GeV)",50,0.,200.);
+  T1->Draw("jet_lead_pt>>j15_1","evtweight");
+  j15_1->SetLineColor(kBlack);
+  j15_1->SetLineWidth(2);
+  j15_1->SetStats(0);
+
+TH1F *j16_1 = new TH1F("j16_1","Leading Jet PT (GeV)",50,0.,200.);
+  T2->Draw("jet_lead_pt>>j16_1","evtweight");
+  j16_1->SetLineColor(kRed);
+  j16_1->SetLineWidth(2);
+  j16_1->SetStats(0);
+
+j15_1->Scale(scale_m);
+j16_1->Scale(scale_p);
+
+//cout << "MCNLO number of events = " << j15_1->Integral() << endl;
+//cout << "Powheg number of events =  " << j16_1->Integral() << endl;
+
+//cout << "Powheg Events = " << j16_1->Integral() << endl;
+//cout << "MCNLO Events = " << j15_1->Integral() << endl;
+
+j15_1->Draw();
+j16_1->Draw("sames");
+
+  tleg1_7->AddEntry(j15_1,"HWW_MCNLO","l");
+  tleg1_7->AddEntry(j16_1,"HWW_Powheg","l");
+ tleg1_7->SetFillColor(kWhite);
+ tleg1_7->Draw("sames");
+
+c8->cd(2);//pad2
+
+TH1F *j15_2 = new TH1F("j15_2","SubLeading Jet PT",50,0.,200.);
+  T1->Draw("jet_sublead_pt>>j15_2","evtweight");
+  j15_2->SetLineColor(kBlack);
+  j15_2->SetLineWidth(2);
+  j15_2->SetStats(0);
+
+TH1F *j16_2 = new TH1F("j16_2","SubLeading Jet PT",50,0.,200.);
+  T2->Draw("jet_sublead_pt>>j16_2","evtweight");
+  j16_2->SetLineColor(kRed);
+  j16_2->SetLineWidth(2);
+  j16_2->SetStats(0);
+
+j15_2->Scale(scale_m);
+j16_2->Scale(scale_p);
+
+//cout << "Powheg Events = " << j16_2->Integral() << endl;
+//cout << "MCNLO Events = " << j15_2->Integral() << endl;
+
+j15_2->Draw();
+j16_2->Draw("sames");
+
+
+c8->cd(3);//pad 3
+TH1F *j15_3 = new TH1F("j15_3","Leading Jet Eta",20,-10.,10.);
+  T1->Draw("jet_lead_eta>>j15_3","evtweight");
+  j15_3->SetLineColor(kBlack);
+  j15_3->SetLineWidth(2);
+  j15_3->SetStats(0);
+
+TH1F *j16_3 = new TH1F("j16_3","Leading Jet Eta",20,-10.,10.);
+  T2->Draw("jet_lead_eta>>j16_3","evtweight");
+  j16_3->SetLineColor(kRed);
+  j16_3->SetLineWidth(2);
+  j16_3->SetStats(0);
+
+j15_3->Scale(scale_m);
+j16_3->Scale(scale_p);
+
+j15_3->Draw();
+j16_3->Draw("sames");
+
+c8->cd(4); //pad 4
+
+TH1F *j15_4 = new TH1F("j15_4","Number of Jets",5,0,5);
+  T1->Draw("njets>>j15_4","evtweight");
+  j15_4->SetLineColor(kBlack);
+  j15_4->SetLineWidth(2);
+  j15_4->SetStats(0);
+
+TH1F *j16_4 = new TH1F("j16_4","Number of Jets",5,0,5);
+  T2->Draw("njets>>j16_4","evtweight");
+  j16_4->SetLineColor(kRed);
+  j16_4->SetLineWidth(2);
+  j16_4->SetStats(0);
+
+j15_4->Scale(scale_m);
+j16_4->Scale(scale_p);
+
+//cout << "Powheg Events = " << j16_4->Integral() << endl;
+//cout << "MCNLO Events = " << j15_4->Integral() << endl;
+
+j15_4->Draw();
+j16_4->Draw("sames");
+
+c8->cd();
+c8->SaveAs("jet_plots.png");
+c8->Write();
+
+
+//========================================================================== canvas 9 starts =======================
+ 
+TCanvas *c9 = new TCanvas("c9", "c9",201,27,989,682);
+  c9->SetFillColor(0);
+ // c9->SetFrameFillColor(0);
+  c9->SetFrameBorderSize(1);
+//  c9->SetFrameBorderMode(-1);
+    c9->SetLogy(0);
+
+TLegend *tleg1_8 = new TLegend(0.6073393,0.687373,0.8040398,0.8525152,NULL,"brNDC");
+TH1F *j17_1 = new TH1F("j17_1","Invariant Mass of Leading Jets",50,0.,1000.);
+  T1->Draw("invmass_jets>>j17_1","evtweight");
+  j17_1->SetLineColor(kBlack);
+  j17_1->SetLineWidth(2);
+  j17_1->SetStats(0);
+
+TH1F *j18_1 = new TH1F("j18_1","Invariant Mass of Leading Jets",50,0.,1000.);
+  T2->Draw("invmass_jets>>j18_1","evtweight");
+  j18_1->SetLineColor(kRed);
+  j18_1->SetLineWidth(2);
+  j18_1->SetStats(0);
+
+j17_1->Scale(scale_m);
+j18_1->Scale(scale_p);
+
+j17_1->Draw();
+j18_1->Draw("sames");
+
+  tleg1_8->AddEntry(j17_1,"HWW_MCNLO","l");
+  tleg1_8->AddEntry(j18_1,"HWW_Powheg","l");
+ tleg1_8->SetFillColor(kWhite);
+ tleg1_8->Draw("sames");
+
+c9->cd();
+c9->SaveAs("jet_plots_1.png");
+c9->Write();
+
+
+//========================================================================== canvas 8 starts =======================
+ 
+TCanvas *c10 = new TCanvas("c10", "c10",201,27,989,682);
+  c10->SetFillColor(0);
+ // c10->SetFrameFillColor(0);
+  c10->SetFrameBorderSize(1);
+//  c10->Divide(2,2);
+//  c10->SetFrameBorderMode(-1);
+    c10->SetLogy(0);
+
+TLegend *tleg1_9 = new TLegend(0.7073393,0.687373,0.9040398,0.8525152,NULL,"brNDC");
+TH1F *j19_1 = new TH1F("j19_1","#Delta#eta of Leading Jets", 20,-10.,10.);
+  T1->Draw("deltaEta_jets>>j19_1","evtweight");
+  j19_1->SetLineColor(kBlack);
+  j19_1->SetLineWidth(2);
+  j19_1->SetStats(0);
+
+TH1F *j20_1 = new TH1F("j20_1","#Delta#eta of Leading Jets", 20,-10.,10.);
+  T2->Draw("deltaEta_jets>>j20_1","evtweight");
+  j20_1->SetLineColor(kRed);
+  j20_1->SetLineWidth(2);
+  j20_1->SetStats(0);
+
+j19_1->Scale(scale_m);
+j20_1->Scale(scale_p);
+
+j19_1->Draw();
+j20_1->Draw("sames");
+
+  tleg1_9->AddEntry(j19_1,"HWW_MCNLO","l");
+  tleg1_9->AddEntry(j20_1,"HWW_Powheg","l");
+ tleg1_9->SetFillColor(kWhite);
+ tleg1_9->Draw("sames");
+
+c10->cd();
+c10->SaveAs("jet_plots_2.png");
+c10->Write();
+
+//========================================================================== canvas 11 starts =======================
+ 
+TCanvas *c11 = new TCanvas("c11", "c11",201,27,989,682);
+  c11->SetFillColor(0);
+ // c11->SetFrameFillColor(0);
+  c11->SetFrameBorderSize(1);
+//  c11->Divide(2,2);
+//  c11->SetFrameBorderMode(-1);
+    c11->SetLogy(0);
+
+TLegend *tleg1_10 = new TLegend(0.6073393,0.687373,0.8040398,0.8525152,NULL,"brNDC");
+TH1F *j21_1 = new TH1F("j21_1","Higgs PT", 25,0.,250.);
+  T1->Draw("H_pt>>j21_1","evtweight");
+  j21_1->SetLineColor(kBlack);
+  j21_1->SetLineWidth(2);
+  j21_1->SetStats(0);
+
+TH1F *j22_1 = new TH1F("j22_1","Higgs PT", 25,0.,250.);
+  T2->Draw("H_pt>>j22_1","evtweight");
+  j22_1->SetLineColor(kRed);
+  j22_1->SetLineWidth(2);
+  j22_1->SetStats(0);
+
+j21_1->Scale(scale_m);
+j22_1->Scale(scale_p);
+
+//cout << "Powheg Events = " << j22_1->Integral() << endl;
+//cout << "MCNLO Events = " << j21_1->Integral() << endl;
+
+j22_1->Draw();
+j21_1->Draw("sames");
+
+  tleg1_10->AddEntry(j21_1,"HWW_MCNLO","l");
+  tleg1_10->AddEntry(j22_1,"HWW_Powheg","l");
+ tleg1_10->SetFillColor(kWhite);
+ tleg1_10->Draw("sames");
+
+c11->cd();
+c11->SaveAs("Higgs_PT.png");
+c11->Write();
+
+//========================================================================== canvas 12 starts =======================
+ 
+TCanvas *c12 = new TCanvas("c12", "c12",201,27,989,682);
+  c12->SetFillColor(0);
+ // c12->SetFrameFillColor(0);
+  c12->SetFrameBorderSize(1);
+//  c12->Divide(2,2);
+//  c12->SetFrameBorderMode(-1);
+    c12->SetLogy(0);
+
+TLegend *tleg1_11 = new TLegend(0.6073393,0.687373,0.8040398,0.8525152,NULL,"brNDC");
+TH1F *j23_1 = new TH1F("j23_1","True MET", 50,0.,300.);
+  T1->Draw("TrueMET>>j23_1","evtweight");
+  j23_1->SetLineColor(kBlack);
+  j23_1->SetLineWidth(2);
+  j23_1->SetStats(0);
+
+TH1F *j24_1 = new TH1F("j24_1","True MET", 50,0.,300.);
+  T2->Draw("TrueMET>>j24_1","evtweight");
+  j24_1->SetLineColor(kRed);
+  j24_1->SetLineWidth(2);
+  j24_1->SetStats(0);
+
+j23_1->Scale(scale_m);
+j24_1->Scale(scale_p);
+
+j24_1->Draw();
+j23_1->Draw("sames");
+
+  tleg1_11->AddEntry(j23_1,"HWW_MCNLO","l");
+  tleg1_11->AddEntry(j24_1,"HWW_Powheg","l");
+ tleg1_11->SetFillColor(kWhite);
+ tleg1_11->Draw("sames");
+
+c12->cd();
+c12->SaveAs("True_MET.png");
+c12->Write();
+
+//========================================================================== canvas 13 starts =======================
+ 
+TCanvas *c13 = new TCanvas("c13", "c13",201,27,989,682);
+  c13->SetFillColor(0);
+ // c13->SetFrameFillColor(0);
+  c13->SetFrameBorderSize(1);
+//  c13->Divide(2,2);
+//  c13->SetFrameBorderMode(-1);
+    c13->SetLogy(0);
+
+TLegend *tleg1_12 = new TLegend(0.6073393,0.687373,0.8040398,0.8525152,NULL,"brNDC");
+TH1F *j25_1 = new TH1F("j25_1","Calo MET", 50,0.,300.);
+  T1->Draw("CaloMET>>j25_1","evtweight");
+  j25_1->SetLineColor(kBlack);
+  j25_1->SetLineWidth(2);
+  j25_1->SetStats(0);
+
+TH1F *j26_1 = new TH1F("j26_1","Calo MET", 50,0.,300.);
+  T2->Draw("CaloMET>>j26_1","evtweight");
+  j26_1->SetLineColor(kRed);
+  j26_1->SetLineWidth(2);
+  j26_1->SetStats(0);
+
+j25_1->Scale(scale_m);
+j26_1->Scale(scale_p);
+
+j26_1->Draw();
+j25_1->Draw("sames");
+
+  tleg1_12->AddEntry(j25_1,"HWW_MCNLO","l");
+  tleg1_12->AddEntry(j26_1,"HWW_Powheg","l");
+ tleg1_12->SetFillColor(kWhite);
+ tleg1_12->Draw("sames");
+
+c13->cd();
+c13->SaveAs("Calo_MET.png");
+c13->Write();
+
+//========================================================================== canvas 14 starts =======================
+ 
+TCanvas *c14 = new TCanvas("c14", "c14",201,27,989,682);
+  c14->SetFillColor(0);
+ // c14->SetFrameFillColor(0);
+  c14->SetFrameBorderSize(1);
+//  c14->Divide(2,2);
+//  c14->SetFrameBorderMode(-1);
+    c14->SetLogy(0);
+
+TLegend *tleg1_13 = new TLegend(0.6073393,0.687373,0.8040398,0.8525152,NULL,"brNDC");
+TH1F *j27_1 = new TH1F("j27_1","NonPrompt MET", 50,0.,100.);
+  T1->Draw("NPMET>>j27_1","evtweight");
+  j27_1->SetLineColor(kBlack);
+  j27_1->SetLineWidth(2);
+  j27_1->SetStats(0);
+
+TH1F *j28_1 = new TH1F("j28_1","NonPrompt MET", 50,0.,100.);
+  T2->Draw("NPMET>>j28_1","evtweight");
+  j28_1->SetLineColor(kRed);
+  j28_1->SetLineWidth(2);
+  j28_1->SetStats(0);
+
+j27_1->Scale(scale_m);
+j28_1->Scale(scale_p);
+
+j28_1->Draw();
+j27_1->Draw("sames");
+
+  tleg1_13->AddEntry(j27_1,"HWW_MCNLO","l");
+  tleg1_13->AddEntry(j28_1,"HWW_Powheg","l");
+ tleg1_13->SetFillColor(kWhite);
+ tleg1_13->Draw("sames");
+
+c14->cd();
+c14->SaveAs("NP_MET.png");
+c14->Write();
+
+//========================================================================== canvas 15 starts =======================
+ 
+TCanvas *c15 = new TCanvas("c15", "c15",201,27,989,682);
+  c15->SetFillColor(0);
+ // c15->SetFrameFillColor(0);
+  c15->SetFrameBorderSize(1);
+//  c15->Divide(2,2);
+//  c15->SetFrameBorderMode(-1);
+    c15->SetLogy(0);
+
+TLegend *tleg1_14 = new TLegend(0.70,0.60,0.90,0.80,NULL,"brNDC");
+TH1F *j29_1 = new TH1F("j29_1","#Delta#phi(ll)", 70,-3.5,3.5);
+  T1->Draw("deltaPhi_ll>>j29_1","evtweight");
+  j29_1->SetLineColor(kBlack);
+  j29_1->SetLineWidth(2);
+  j29_1->SetStats(0);
+
+TH1F *j30_1 = new TH1F("j30_1","#Delta#phi(ll)", 70,-3.5,3.5);
+  T2->Draw("deltaPhi_ll>>j30_1","evtweight");
+  j30_1->SetLineColor(kRed);
+  j30_1->SetLineWidth(2);
+  j30_1->SetStats(0);
+
+j29_1->Scale(scale_m);
+j30_1->Scale(scale_p);
+
+j29_1->Draw();
+j30_1->Draw("sames");
+
+  tleg1_14->AddEntry(j29_1,"HWW_MCNLO","l");
+  tleg1_14->AddEntry(j30_1,"HWW_Powheg","l");
+ tleg1_14->SetFillColor(kWhite);
+ tleg1_14->Draw("sames");
+
+c15->cd();
+c15->SaveAs("deltaphi_ll.png");
+c15->Write();
+
+//========================================================================== canvas 16 starts =======================
+ 
+TCanvas *c16 = new TCanvas("c16", "c16",201,27,989,682);
+  c16->SetFillColor(0);
+ // c16->SetFrameFillColor(0);
+  c16->SetFrameBorderSize(1);
+  c16->Divide(2,2);
+//  c16->SetFrameBorderMode(-1);
+    c16->SetLogy(0);
+
+TLegend *tleg1_15 = new TLegend(0.6073393,0.687373,0.8040398,0.8525152,NULL,"brNDC");
+c16->cd(1);
+TH1F *j31_1 = new TH1F("j31_1","Leading W PT (GeV)",50,0.,200.);
+  T1->Draw("W_lead_pt>>j31_1","evtweight");
+  j31_1->SetLineColor(kBlack);
+  j31_1->SetLineWidth(2);
+  j31_1->SetStats(0);
+
+TH1F *j32_1 = new TH1F("j32_1","Leading W PT (GeV)",50,0.,200.);
+  T2->Draw("W_lead_pt>>j32_1","evtweight");
+  j32_1->SetLineColor(kRed);
+  j32_1->SetLineWidth(2);
+  j32_1->SetStats(0);
+
+//cout << j31_1->Integral() << "  " << j32_1->Integral() << endl;
+
+j31_1->Scale(scale_m);
+j32_1->Scale(scale_p);
+
+j32_1->Draw();
+j31_1->Draw("sames");
+
+  tleg1_15->AddEntry(j31_1,"HWW_MCNLO","l");
+  tleg1_15->AddEntry(j32_1,"HWW_Powheg","l");
+ tleg1_15->SetFillColor(kWhite);
+ tleg1_15->Draw("sames");
+
+c16->cd(2);//pad2
+
+TH1F *j31_2 = new TH1F("j31_2","SubLeading W PT",50,0.,200.);
+  T1->Draw("W_sublead_pt>>j31_2","evtweight");
+  j31_2->SetLineColor(kBlack);
+  j31_2->SetLineWidth(2);
+  j31_2->SetStats(0);
+
+TH1F *j32_2 = new TH1F("j32_2","SubLeading W PT",50,0.,200.);
+  T2->Draw("W_sublead_pt>>j32_2","evtweight");
+  j32_2->SetLineColor(kRed);
+  j32_2->SetLineWidth(2);
+  j32_2->SetStats(0);
+
+j31_2->Scale(scale_m);
+j32_2->Scale(scale_p);
+
+j32_2->Draw();
+j31_2->Draw("sames");
+
+
+c16->cd(3);//pad 3
+TH1F *j31_3 = new TH1F("j31_3","Leading W Mass",50, 0.,150.);
+  T1->Draw("W_lead_mass>>j31_3","evtweight");
+  j31_3->SetLineColor(kBlack);
+  j31_3->SetLineWidth(2);
+  j31_3->SetStats(0);
+
+TH1F *j32_3 = new TH1F("j32_3","Leading W Mass",50, 0.,150.);
+  T2->Draw("W_lead_mass>>j32_3","evtweight");
+  j32_3->SetLineColor(kRed);
+  j32_3->SetLineWidth(2);
+  j32_3->SetStats(0);
+
+j31_3->Scale(scale_m);
+j32_3->Scale(scale_p);
+
+j32_3->Draw();
+j31_3->Draw("sames");
+
+c16->cd(4); //pad 4
+
+TH1F *j31_4 = new TH1F("j31_4","Subleading W Mass",50,0.,150.);
+  T1->Draw("W_sublead_mass>>j31_4","evtweight");
+  j31_4->SetLineColor(kBlack);
+  j31_4->SetLineWidth(2);
+  j31_4->SetStats(0);
+
+TH1F *j32_4 = new TH1F("j32_4","Subleading W Mass",50,0.,150.);
+  T2->Draw("W_sublead_mass>>j32_4","evtweight");
+  j32_4->SetLineColor(kRed);
+  j32_4->SetLineWidth(2);
+  j32_4->SetStats(0);
+
+j31_4->Scale(scale_m);
+j32_4->Scale(scale_p);
+
+j32_4->Draw();
+j31_4->Draw("sames");
+
+c16->cd();
+c16->SaveAs("W_plots.png");
+c16->Write();
+
+//========================================================================== canvas 17 starts =======================
+ 
+TCanvas *c17 = new TCanvas("c17", "c17",201,27,989,682);
+  c17->SetFillColor(0);
+ // c17->SetFrameFillColor(0);
+  c17->SetFrameBorderSize(1);
+//  c17->Divide(2,2);
+//  c17->SetFrameBorderMode(-1);
+    c17->SetLogy(0);
+
+TLegend *tleg1_16 = new TLegend(0.6073393,0.687373,0.8040398,0.8525152,NULL,"brNDC");
+TH1F *j33_1 = new TH1F("j33_1","Leading Lepton PT", 50,0.,100.);
+  T1->Draw("lead_lept_pt>>j33_1","evtweight");
+  j33_1->SetLineColor(kBlack);
+  j33_1->SetLineWidth(2);
+  j33_1->SetStats(0);
+
+TH1F *j34_1 = new TH1F("j34_1","Leading Lepton PT", 50,0.,100.);
+  T2->Draw("lead_lept_pt>>j34_1","evtweight");
+  j34_1->SetLineColor(kRed);
+  j34_1->SetLineWidth(2);
+  j34_1->SetStats(0);
+
+j33_1->Scale(scale_m);
+j34_1->Scale(scale_p);
+
+j34_1->Draw();
+j33_1->Draw("sames");
+
+  tleg1_16->AddEntry(j33_1,"HWW_MCNLO","l");
+  tleg1_16->AddEntry(j34_1,"HWW_Powheg","l");
+ tleg1_16->SetFillColor(kWhite);
+ tleg1_16->Draw("sames");
+
+c17->cd();
+c17->SaveAs("lead_lept.png");
+c17->Write();
+
+//========================================================================== canvas 18 starts =======================
+ 
+TCanvas *c18 = new TCanvas("c18", "c18",201,27,989,682);
+  c18->SetFillColor(0);
+ // c18->SetFrameFillColor(0);
+  c18->SetFrameBorderSize(1);
+//  c18->Divide(2,2);
+//  c18->SetFrameBorderMode(-1);
+    c18->SetLogy(0);
+
+TLegend *tleg1_17 = new TLegend(0.6073393,0.687373,0.8040398,0.8525152,NULL,"brNDC");
+TH1F *j35_1 = new TH1F("j35_1","Subleading Lepton PT", 50,0.,100.);
+  T1->Draw("sublead_lept_pt>>j35_1","evtweight");
+  j35_1->SetLineColor(kBlack);
+  j35_1->SetLineWidth(2);
+  j35_1->SetStats(0);
+
+TH1F *j36_1 = new TH1F("j36_1","Subleading Lepton PT", 50,0.,100.);
+  T2->Draw("sublead_lept_pt>>j36_1","evtweight");
+  j36_1->SetLineColor(kRed);
+  j36_1->SetLineWidth(2);
+  j36_1->SetStats(0);
+
+j35_1->Scale(scale_m);
+j36_1->Scale(scale_p);
+
+j36_1->Draw();
+j35_1->Draw("sames");
+
+  tleg1_17->AddEntry(j35_1,"HWW_MCNLO","l");
+  tleg1_17->AddEntry(j36_1,"HWW_Powheg","l");
+ tleg1_17->SetFillColor(kWhite);
+ tleg1_17->Draw("sames");
+
+c18->cd();
+c18->SaveAs("sublead_lept.png");
+c18->Write();
+
+//========================================================================== canvas 19 starts =======================
+ 
+TCanvas *c19 = new TCanvas("c19", "c19",201,27,989,682);
+  c19->SetFillColor(0);
+ // c19->SetFrameFillColor(0);
+  c19->SetFrameBorderSize(1);
+//  c19->Divide(2,2);
+//  c19->SetFrameBorderMode(-1);
+    c19->SetLogy(0);
+
+TLegend *tleg1_18 = new TLegend(0.6073393,0.687373,0.8040398,0.8525152,NULL,"brNDC");
+TH1F *j37_1 = new TH1F("j37_1","di-lepton Mass", 50,0.,100.);
+  T1->Draw("dilepmass>>j37_1","evtweight");
+  j37_1->SetLineColor(kBlack);
+  j37_1->SetLineWidth(2);
+  j37_1->SetStats(0);
+
+TH1F *j38_1 = new TH1F("j38_1","di-lepton Mass", 50,0.,100.);
+  T2->Draw("dilepmass>>j38_1","evtweight");
+  j38_1->SetLineColor(kRed);
+  j38_1->SetLineWidth(2);
+  j38_1->SetStats(0);
+
+j37_1->Scale(scale_m);
+j38_1->Scale(scale_p);
+
+j38_1->Draw();
+j37_1->Draw("sames");
+
+  tleg1_18->AddEntry(j37_1,"HWW_MCNLO","l");
+  tleg1_18->AddEntry(j38_1,"HWW_Powheg","l");
+ tleg1_18->SetFillColor(kWhite);
+ tleg1_18->Draw("sames");
+
+c19->cd();
+c19->SaveAs("di_lepton_mass.png");
+c19->Write();
+
+//========================================================================== canvas 20 starts =======================
+ 
+TCanvas *c20 = new TCanvas("c20", "c20",201,27,989,682);
+  c20->SetFillColor(0);
+ // c20->SetFrameFillColor(0);
+  c20->SetFrameBorderSize(1);
+//  c20->Divide(2,2);
+//  c20->SetFrameBorderMode(-1);
+    c20->SetLogy(0);
+
+TLegend *tleg1_19 = new TLegend(0.6073393,0.687373,0.8040398,0.8525152,NULL,"brNDC");
+TH1F *j39_1 = new TH1F("j39_1","Transverse Mass of Higgs", 50,0.,200.);
+  T1->Draw("WWTransMass>>j39_1","evtweight");
+  j39_1->SetLineColor(kBlack);
+  j39_1->SetLineWidth(2);
+  j39_1->SetStats(0);
+
+TH1F *j40_1 = new TH1F("j40_1","Transverse Mass of Higgs", 50,0.,200.);
+  T2->Draw("WWTransMass>>j40_1","evtweight");
+  j40_1->SetLineColor(kRed);
+  j40_1->SetLineWidth(2);
+  j40_1->SetStats(0);
+
+j39_1->Scale(scale_m);
+j40_1->Scale(scale_p);
+
+j40_1->Draw();
+j39_1->Draw("sames");
+
+  tleg1_19->AddEntry(j39_1,"HWW_MCNLO","l");
+  tleg1_19->AddEntry(j40_1,"HWW_Powheg","l");
+ tleg1_19->SetFillColor(kWhite);
+ tleg1_19->Draw("sames");
+
+c20->cd();
+c20->SaveAs("MT_Higgs.png");
+c20->Write();
+
+file->Close();
+}
+

@@ -1,0 +1,41 @@
+void plot() {
+TFile f1("HWW_125GeV_13TeV_MCNLO_forplot_21May.root");
+TTree *T1 = (TTree*)f1.Get("gen_tree");
+
+//TFile * file = new TFile("plots_HWW_28May.root","RECREATE"); 
+
+//double scale_p = 0.000660845;
+//double scale_m = 0.000006083;
+//========================================================================== canvas 8 starts =======================
+ 
+TCanvas *c8 = new TCanvas("c8", "c8",201,27,989,682);
+  c8->SetFillColor(0);
+ // c8->SetFrameFillColor(0);
+  c8->SetFrameBorderSize(1);
+//  c8->SetFrameBorderMode(-1);
+    c8->SetLogy(0);
+
+TH1F *j1 = new TH1F("j1","Nominal Event Weights MC@NLO",100,-250.,250.);
+  T1->Draw("evtweight>>j1","1");
+  j1->SetLineColor(kBlack);
+  j1->SetLineWidth(2);
+  j1->SetStats(0);
+
+j1->Draw();
+
+TH1F *j2 = new TH1F("j2","Nominal Event Weights MC@NLO",100,-250.,250.);
+  T1->Draw("evtweight>>j2","evtweight > 0.");
+
+
+TH1F *j3 = new TH1F("j3","Nominal Event Weights MC@NLO",100,-250.,250.);
+  T1->Draw("evtweight>>j3","evtweight < 0.");
+
+cout << "Total Events = " << j1->Integral() << endl;
+cout << "Events with Positive weights = " << j2->Integral() << endl;
+cout << "Events with negative weights = " << j3->Integral() << endl;
+cout << "Fraction of Events with Negative Weights = " << j3->Integral()/j1->Integral() << endl;
+cout << "Fraction of Events with Positive Weights = " << j2->Integral()/j1->Integral() << endl;
+
+c8->cd();
+c8->SaveAs("weight_plot.png");
+}
