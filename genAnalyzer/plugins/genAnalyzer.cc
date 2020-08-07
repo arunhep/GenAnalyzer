@@ -111,11 +111,21 @@ class genAnalyzer : public edm::EDAnalyzer {
   void AddBranch(std::vector<std::string>*, std::string name);
   void AddBranch(std::vector<int>*, std::string name);
   void SetBranches();
-  bool isFromHiggs(const reco::GenParticle& p)const;
-
+//  bool isFromHiggs(const reco::GenParticle& p)const;
+  bool isjetlepton(double phi, double eta, edm::Handle<reco::GenParticleCollection> Genparticles);
 //  std::vector<double>& evtWeights = NULL;
 
   edm::InputTag genPartLabel_;
+
+///////////////////////////////////
+  edm::EDGetTokenT<reco::GenParticleCollection> tok_genParticle_;
+  edm::EDGetTokenT<LHEEventProduct> EVTtoken;
+  edm::EDGetTokenT<GenEventInfoProduct> _GenInfoT;
+  edm::EDGetTokenT<vector<reco::GenJet>> GenjetT;
+//  edm::EDGetTokenT<GenEventInfoProduct> GENtoken;
+  std::vector<double> _weightsLHE;
+  double _weightsnominalLHE;
+////////////////////////////////////
 
   TTree* tree_;
   TFile* file;
@@ -135,6 +145,10 @@ class genAnalyzer : public edm::EDAnalyzer {
  std::vector<int> genNuMother_;
  std::vector<int> genNuGrandMother_;
  std::vector<int> genNuPdgId_;
+ std::vector<int> weightid_;
+// std::vector<double> The_weights;
+
+ //double weight1001;
 
 /*
   std::vector<double> genMuPt_;
@@ -193,27 +207,53 @@ class genAnalyzer : public edm::EDAnalyzer {
   std::vector<double> genJetEta_;
   std::vector<double> genJetPhi_;
   std::vector<double> genJetMass_;
-  std::vector<double> genCaloMET_;
-  std::vector<double> genCaloMETPhi_;
-  std::vector<double> genTrueMET_;
-  std::vector<double> genTrueMETPhi_;
-  std::vector<double> genNPMET_;
-  std::vector<double> genNPMETPhi_;
+//  std::vector<double> genCaloMET_;
+//  std::vector<double> genCaloMETPhi_;
+//  std::vector<double> genTrueMET_;
+//  std::vector<double> genTrueMETPhi_;
+//  std::vector<double> genNPMET_;
+//  std::vector<double> genNPMETPhi_;
 };
 
 
 //---------------------------------------------------------------
 // Add Branches to the Tree
 //---------------------------------------------------------------
-
-bool genAnalyzer::isFromHiggs(const reco::GenParticle &p) const {
-     for (unsigned int i = 0, n = p.numberOfMothers(); i < n; ++i) {
-         const reco::GenParticleRef & mom = p.motherRef(i);
-         if (abs(mom->pdgId()) == 25) return true;
-         if ((11 <= abs(mom->pdgId()) && abs(mom->pdgId()) <= 24) && isFromHiggs(*mom)) return true;
-     }
-     return false;
+bool genAnalyzer::isjetlepton(double phi, double eta, edm::Handle<reco::GenParticleCollection> Genparticles){
+//bool genAnalyzer::isjetlepton(double phi, double eta, edm::Handle<reco::GenParticleCollection> Genparticles);
+	bool islepton = false;
+	for (reco::GenParticleCollection::const_iterator Genpart = Genparticles->begin(); Genpart !=  Genparticles->end(); Genpart ++){
+		int id = abs(Genpart -> pdgId());
+	
+		if (id == 10 || id == 12 || id == 14 || id == 11 || id == 13 || id == 15) {
+		        double	phig = Genpart -> phi();
+		        double	etag = Genpart -> eta();
+//			std::cout << "there is leptons in jet" << std::endl;
+			float deltaR = sqrt(reco::deltaPhi(phig,phi)*reco::deltaPhi(phig,phi)+ (etag-eta)*(etag-eta));
+			if (deltaR < 0.4) {
+				islepton = true;
+//				std::cout << "the pdg id of the lepton is " << id <<std::endl;
 }
+
+
+
+}
+
+}
+
+return islepton;
+}
+
+
+
+//bool genAnalyzer::isFromHiggs(const reco::GenParticle &p) const {
+//     for (unsigned int i = 0, n = p.numberOfMothers(); i < n; ++i) {
+//         const reco::GenParticleRef & mom = p.motherRef(i);
+//         if (abs(mom->pdgId()) == 25) return true;
+//         if ((11 <= abs(mom->pdgId()) && abs(mom->pdgId()) <= 24) && isFromHiggs(*mom)) return true;
+//     }
+//     return false;
+//}
 
 void
 genAnalyzer::AddBranch(double* x, std::string name){
@@ -241,6 +281,7 @@ genAnalyzer::AddBranch(std::vector<std::string>* vec, std::string name){
    tree_->Branch(name.c_str(),vec);
   }
 
+
 void  
 genAnalyzer::SetBranches(){
 
@@ -262,7 +303,9 @@ genAnalyzer::SetBranches(){
    AddBranch(&denomWeight_,"denomWeight");
    AddBranch(&finalWeight_,"finalWeight");
    AddBranch(&baseWeight_,"baseWeight");
-
+   
+   AddBranch(&_weightsnominalLHE,"LHEnominalweight");
+   AddBranch(&_weightsLHE,"LHEweights");
 
 /*
   AddBranch(&ngenMu_,"ngenMu");
@@ -329,14 +372,14 @@ genAnalyzer::SetBranches(){
   AddBranch(&genJetMass_, "genJetMass");
   AddBranch(&ngenJet_, "ngenJet");
 
-  AddBranch(&genCaloMET_, "genCaloMET");
-  AddBranch(&genCaloMETPhi_, "genCaloMETPhi");
-  AddBranch(&genTrueMET_, "genTrueMET");
-  AddBranch(&genTrueMETPhi_, "genTrueMETPhi");
-  AddBranch(&genNPMET_,"genNPMET");
-  AddBranch(&genNPMETPhi_,"genNPMETPhi");
-
-
+//  AddBranch(&genCaloMET_, "genCaloMET");
+//  AddBranch(&genCaloMETPhi_, "genCaloMETPhi");
+//  AddBranch(&genTrueMET_, "genTrueMET");
+//  AddBranch(&genTrueMETPhi_, "genTrueMETPhi");
+//  AddBranch(&genNPMET_,"genNPMET");
+//  AddBranch(&genNPMETPhi_,"genNPMETPhi");
+  AddBranch(&weightid_, "ID_of_weights_NNLOPS");
+//  AddBranch(&weight1001,"weight1001");
 }
 
 void  
@@ -378,6 +421,10 @@ baseWeight_.clear();
   genNuMother_.clear();
   genNuGrandMother_.clear();
   genNuPdgId_.clear();
+
+//  _weightsnominalLHE.clear();
+  _weightsLHE.clear();
+  weightid_.clear();
 /*
   genMuPt_.clear();
   genMuEta_.clear();
@@ -424,12 +471,12 @@ genJetEta_.clear();
 genJetPhi_.clear();
 genJetMass_.clear();
 
-genCaloMET_.clear();
-genCaloMETPhi_.clear();
-genTrueMET_.clear();
-genTrueMETPhi_.clear();
-genNPMET_.clear();
-genNPMETPhi_.clear();
+//genCaloMET_.clear();
+//genCaloMETPhi_.clear();
+//genTrueMET_.clear();
+//genTrueMETPhi_.clear();
+//genNPMET_.clear();
+//genNPMETPhi_.clear();
 
 }
 
@@ -444,16 +491,21 @@ genNPMETPhi_.clear();
 //
 // constructors and destructor
 //
-genAnalyzer::genAnalyzer(const edm::ParameterSet& iConfig)
-
+genAnalyzer::genAnalyzer(const edm::ParameterSet& iConfig):
+ tok_genParticle_(consumes<reco::GenParticleCollection>(iConfig.getUntrackedParameter<edm::InputTag>("genParticles", edm::InputTag("genParticles"))))
 {
-   //now do what ever initialization is needed
 
-  file = new TFile("HWW_125GeV.root","recreate");
+printf("checking ```````````");
+   //now do what ever initialization is needed
+EVTtoken = consumes<LHEEventProduct>(edm::InputTag("externalLHEProducer"));
+_GenInfoT  = consumes<GenEventInfoProduct>(edm::InputTag("generator"));
+GenjetT = consumes<vector<reco::GenJet>>(edm::InputTag("slimmedGenJets"));
+//GENtoken = consumes<GenEventInfoProduct>(edm::InputTag("generator"));
+  file = new TFile("WW_pair_production.root","recreate");
 //  file = new TFile("WW.root","recreate");
   tree_ = new TTree("tree","tree");
 
-// genPartLabel_ = iConfig.getParameter<edm::InputTag>("genParticles");
+ //genPartLabel_ = iConfig.getParameter<edm::InputTag>("genParticles");
 
  SetBranches();
 
@@ -485,13 +537,31 @@ Clear();
      Event_.push_back(iEvent.id().event());
      Run_.push_back(iEvent.id().run());
 
+//std::cout<<    "EVT Begins!\n\n\n\n\n\n"   <<std::endl;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
    edm::Handle<reco::GenParticleCollection> genParticleHandle;
-  // if(not iEvent.getByLabel(genPartLabel_, genParticleHandle))
-   if(not iEvent.getByLabel("genParticles", genParticleHandle))
-     {
-       std::cout<<
-	 "GenAnalyzer: Generator Level Information not found\n"
-		<<std::endl;
+   //iEvent.getByLabel(genPartLabel_, genParticleHandle);
+   iEvent.getByToken(tok_genParticle_, genParticleHandle);
+   //iEvent.getByLabel(edm::InputTag("prunedGenParticles:PAT"), genParticleHandle);
+  if (!genParticleHandle.isValid()){
+     //  std::cout<<
+//	 "NOT! GenAnalyzer: Generator Level Information not found\n"
+//		<<std::endl;
      }
 
 //   std::cout<<"Running\n"<<std::endl;
@@ -499,8 +569,8 @@ Clear();
 //int nMu = 0;
 //int nEle = 0;
 //int nTau = 0;
-int nZ = 0;
-int nH = 0;
+int nW = 0;
+//int nH = 0;
 int nNu = 0;
 int nLept = 0;
 int njets = 0;
@@ -524,7 +594,7 @@ for (auto const & genPtr : sortedPtrs) {
 //if(abs(geni.pdgId()) ==11 && geni.status() == 1){
 //if(((abs(geni.pdgId())==11) || (abs(geni.pdgId())==13) || (abs(geni.pdgId())==15)) && ((geni.mother()->pdgId() == 24) || (geni.mother()->pdgId() == -24)) && (geni.mother()->mother()->pdgId() == 25)){
 //if((abs(geni.pdgId())==11) || (abs(geni.pdgId())==13) || (abs(geni.pdgId())==15)){
-if((abs(geni.pdgId())==11 || abs(geni.pdgId())==13) && (abs(geni.mother()->pdgId()) == 24 || (abs(geni.mother()->pdgId()) == 15 && abs(geni.mother()->mother()->pdgId()) == 24))){
+if((abs(geni.pdgId())==11 || abs(geni.pdgId())==13) && (abs(geni.mother()->pdgId()) == 24)&&(geni.status()==1)){ //|| (abs(geni.mother()->pdgId()) == 15 && abs(geni.mother()->mother()->pdgId()) == 24))){
 //if((abs(geni.pdgId())==11 || abs(geni.pdgId())==13) && (abs(geni.mother()->pdgId()) == 24 || abs(geni.mother()->pdgId()) == 15)){
 //genLeptPt_.push_back(geni.pt());
 genLeptPt_.push_back(geni.pt());
@@ -535,8 +605,12 @@ genLeptId_.push_back(geni.pdgId());
 genLeptStatus_.push_back(geni.status());
 genLeptMother_.push_back(geni.mother()->pdgId());
 genLeptGrandMother_.push_back(geni.mother()->mother()->pdgId());
-//cout << "geni.pdgId() = " << geni.pdgId() << " Mother = " <<  geni.mother()->pdgId() << " GrandMother = " << geni.mother()->mother()->pdgId() << endl;
-//cout << "Lept Status = " << geni.status() << endl;
+//if(geni.isPromptFinalState())std::cout << "isPromptFinalState = " << geni.isPromptFinalState() << std::endl;
+//if(geni.fromHardProcessFinalState())std::cout << "fromHardProcessFinalState = " << geni.fromHardProcessFinalState() << std::endl;
+//if(geni.isDirectPromptTauDecayProductFinalState())std::cout << "isDirectPromptTauDecayProductFinalState = " << geni.isDirectPromptTauDecayProductFinalState() << std::endl;
+//if(geni.isDirectHardProcessTauDecayProductFinalState())std::cout << "isDirectHardProcessTauDecayProductFinalState = " << geni.isDirectHardProcessTauDecayProductFinalState() << std::endl;
+//std::cout << "geni.pdgId() = " << geni.pdgId() << " Mother = " <<  geni.mother()->pdgId() << " GrandMother = " << geni.mother()->mother()->pdgId() << std::endl;
+//std::cout << "Lept Status = " << geni.status() << std::endl;
 nLept++;
 }
 ngenLept_ = nLept;
@@ -611,7 +685,7 @@ ngenTau_ = nTau;
 //cout << "geni.mother()->pdgId() = " << geni.mother()->pdgId() << endl;
 //}
 
-if((abs(geni.pdgId())==24) && (geni.mother()->pdgId() == 25)){
+if((abs(geni.pdgId())==24) && (geni.mother()->pdgId() != 25)){
 //if((abs(geni.pdgId())==23)){
        genWPt_.push_back(geni.pt());
        genWEta_.push_back(geni.eta());
@@ -621,41 +695,41 @@ if((abs(geni.pdgId())==24) && (geni.mother()->pdgId() == 25)){
        genWstatus_.push_back(geni.status());
        genWMother_.push_back(geni.mother()->pdgId());
 
- nZ++;
+ nW++;
 //cout << geni.pt() << endl;
 }
-ngenW_ = nZ;
+ngenW_ = nW;
 //cout << "nH (before) = " << nH << endl;
-if(geni.pdgId()==25 && geni.numberOfDaughters() == 2){
-//if(geni.pdgId()==25){
-//cout << "geni.pdgId() = " << geni.pdgId() << endl;
-       genHPt_.push_back(geni.pt());
-       genHEta_.push_back(geni.eta());
-       genHPhi_.push_back(geni.phi());
-       genHMass_.push_back(geni.mass());
-       genHQ_.push_back(geni.charge());
-       genHstatus_.push_back(geni.status());
-//if(geni.status() != 62) {
-//cout << geni.status() << endl;
+//if(geni.pdgId()==25 && geni.numberOfDaughters() == 2){
+////if(geni.pdgId()==25){
+////cout << "geni.pdgId() = " << geni.pdgId() << endl;
+//       genHPt_.push_back(geni.pt());
+//       genHEta_.push_back(geni.eta());
+//       genHPhi_.push_back(geni.phi());
+//       genHMass_.push_back(geni.mass());
+//       genHQ_.push_back(geni.charge());
+//       genHstatus_.push_back(geni.status());
+////if(geni.status() != 62) {
+////cout << geni.status() << endl;
+////}
+//     int n = geni.numberOfDaughters();
+//     for(int j = 0; j < n; ++ j) {
+//       const Candidate *d = geni.daughter(j);
+//       genHdaughter_.push_back(d->pdgId());
+////cout << "daughter id = " << d->pdgId() << endl;
+//
+//     }
+//
+// nH++;
+////cout << nH << endl;
 //}
-     int n = geni.numberOfDaughters();
-     for(int j = 0; j < n; ++ j) {
-       const Candidate *d = geni.daughter(j);
-       genHdaughter_.push_back(d->pdgId());
-//cout << "daughter id = " << d->pdgId() << endl;
-
-     }
-
- nH++;
-//cout << nH << endl;
-}
-//cout << "nH (After) = " << nH << endl;
-ngenH_ = nH;
+////cout << "nH (After) = " << nH << endl;
+//ngenH_ = nH;
 //cout << "ngenH_ = " << ngenH_ << endl;
 
 }
 
-
+//std::cout << " This is the Middle of the process"<< std::endl;
 //cout << "nLept = " << nLept << endl;
 
 
@@ -664,14 +738,30 @@ ngenH_ = nH;
 ///////////////////////////////////////// looking for genjets //////////////////////////////////////
 
 
-
-   edm::Handle<reco::GenJetCollection> genJetsHandle;
-   if( not iEvent.getByLabel("ak4GenJets",genJetsHandle)){
+   edm::Handle<GenJetCollection> genJetsHandle;
+   if( not iEvent.getByToken(GenjetT,genJetsHandle)){
      edm::LogInfo("GenAnalyzer") << "genJets not found, "
        "skipping event";
      return;
    }
-
+//   for ( reco::GenJetCollection::const_iterator genJetIter = genJetsHandle -> begin(); genJetIter != genJetsHandle -> end(); genJetIter ++){
+//	double phi = genJetIter ->phi();
+//	double eta = genJetIter ->eta();
+//	float pt = genJetIter ->pt();
+//	if ((isjetlepton(phi, eta, genParticleHandle)) == false){
+//		int numberofjet = 0;
+//		if (numberofjet < 4){
+//			if(pt > 30 && fabs(eta) < 5.0){
+//				genJetPt_.push_back(pt);
+//				genJetEta_.push_back(eta);
+//				genJetPhi_.push_back(phi);
+//				genJetMass_.push_back(genJetIter -> mass());
+//				njets ++;
+//				numberofjet ++;
+//			}
+//		}		
+//	}
+//}
 
    const reco::GenJetCollection* genJetColl= &(*genJetsHandle);
 //   std::vector<reco::GenParticle> sorted(*genColl);
@@ -685,22 +775,43 @@ ngenH_ = nH;
 
 //ngenJet_ = sortedjets.size();
 //cout << "Number of jets Initial = " << sortedjets.size() << endl;
-for (auto const & genPtrjets : sortedjets) {
-   auto const & gjets = *genPtrjets;
-//cout << "Jets PT = " << gjets.pt() << "   Jets Eta = " << gjets.eta() << endl;
-if(gjets.pt() > 30. && fabs(gjets.eta()) < 5.0) {
-     genJetPt_.push_back(gjets.pt());
-     genJetEta_.push_back(gjets.eta());
-     genJetPhi_.push_back(gjets.phi());
-     genJetMass_.push_back(gjets.mass());
-njets++;
-}
+for (auto const & genJetI : sortedjets) {
+	auto const &genJetIter = *genJetI;
+	double phi = genJetIter.phi();
+        double eta = genJetIter.eta();
+        float pt = genJetIter.pt();
+//	std::cout << "begin selecting jet" <<std::endl;
+        if ((isjetlepton(phi, eta, genParticleHandle)) == false){
+                
+//                     		std::cout << "the jet real id is " << genJetIter.pdgId() <<std::endl;
+                                genJetPt_.push_back(pt);
+                                genJetEta_.push_back(eta);
+                                genJetPhi_.push_back(phi);
+                                genJetMass_.push_back(genJetIter.mass());
+                                njets ++;
+	}//else { 
+//	std::cout << "the lepton pdg id is =" << genJetIter.pdgId() <<std::endl; 
+}//}
+
+//   auto const & gjets = *genPtrjets;
+////cout << "Jets PT = " << gjets.pt() << "   Jets Eta = " << gjets.eta() << endl;
+//if(gjets.pt() > 30. && fabs(gjets.eta()) < 5.0) {
+//     genJetPt_.push_back(gjets.pt());
+//     genJetEta_.push_back(gjets.eta());
+//     genJetPhi_.push_back(gjets.phi());
+//     genJetMass_.push_back(gjets.mass());
+//njets++;
+//
+//}
+
 //cout << gjets.mass() << endl;
-}
+
+
+
 ngenJet_ = njets;
 //cout << "number of jets After = " << njets << endl;
 //cout <<"*****************************"<< endl;
-
+/*
 //	edm::Handle<std::vector<reco::PFMET>> genCaloMETHandle;
         edm::Handle<reco::GenMETCollection> genCaloMETHandle;	
 	if( not iEvent.getByLabel("genMetCalo", genCaloMETHandle)){
@@ -708,7 +819,7 @@ ngenJet_ = njets;
 					"skipping event";
 return;
 }
-
+cout << " we have passed AK4" << endl;
 const reco::GenMETCollection* genMETColl = &(*genCaloMETHandle);
 reco::GenMETCollection::const_iterator i;
 for(i=genMETColl->begin(); i!=genMETColl->end(); i++){
@@ -750,15 +861,19 @@ genNPMETPhi_.push_back(k->phi());
 
 }
 
+*/
+//std::cout << " Begin MC of the process"<< std::endl;
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++ FOR MCNLO WEIGHTS +++++++++++++++++++++++++++++++++++++++++++
 
 
 edm::Handle<GenEventInfoProduct> genEvtInfo;
-if( not iEvent.getByLabel("generator",genEvtInfo)){
+if( not iEvent.getByToken(_GenInfoT, genEvtInfo)){//iEvent.getByToken("GENtoken",genEvtInfo)){
         edm::LogInfo("GenAnalyzer") << "GenEventInfo not found, "
                                         "skipping event";
 return;
 }
+
+//std::cout << " Get Generator Info"<< std::endl;
 //double qScale = genEvtInfo->qScale();  // in case of Pythia6, this will be pypars/pari(23)
 //const std::vector<double>& binningValues = genEvtInfo->binningValues(); 
 
@@ -773,33 +888,122 @@ startWeight_ = theWeight;
 //  std::cout << " evtWeights[" << iWeight << "] = " << evtWeights.at(iWeight) << std::endl;
   baseWeight_.push_back(evtWeights.at(iWeight));
  }
-
+//std::cout << "reaching the final state" << std::endl;
 
 edm::Handle<LHEEventProduct> EvtHandle ;
-if (not iEvent.getByLabel("externalLHEProducer",EvtHandle)){
+if (not iEvent.getByToken(EVTtoken,EvtHandle)){
 edm::LogInfo("GenAnalyzer") << "GenEventInfo not found, "
                                         "skipping event";
 return;
 }
-
+// std::cout << "Initializing Weights" << std::endl;
  unsigned int num_whichWeight = EvtHandle->weights().size();
-//cout << "number of weights = " << num_whichWeight << endl;
+// std::cout << "number of weights = " << num_whichWeight << endl;
  for (unsigned int iWeight = 0; iWeight < num_whichWeight; iWeight++) {
-//  _weightsLHE.push_back( productLHEHandle->weights()[iWeight].wgt/productLHEHandle->originalXWGTUP() ); 
+// note: can only use MAP to switch char type to integer type
+//	switch(EvtHandle->weights()[iWeight].id){
+	if(EvtHandle->weights()[iWeight].id == "1001-NNLOPS"){
+			_weightsLHE.push_back(EvtHandle->weights()[iWeight].wgt/EvtHandle->originalXWGTUP());
+			weightid_.push_back(1001);
+}
+        if(EvtHandle->weights()[iWeight].id == "1002-NNLOPS"){
+			_weightsLHE.push_back(EvtHandle->weights()[iWeight].wgt/EvtHandle->originalXWGTUP());
+			weightid_.push_back(1002);
+}
+        if(EvtHandle->weights()[iWeight].id == "1003-NNLOPS"){
+                        _weightsLHE.push_back(EvtHandle->weights()[iWeight].wgt/EvtHandle->originalXWGTUP());
+                        weightid_.push_back(1003);
+}
+        if(EvtHandle->weights()[iWeight].id == "1004-NNLOPS"){
+                        _weightsLHE.push_back(EvtHandle->weights()[iWeight].wgt/EvtHandle->originalXWGTUP());
+                        weightid_.push_back(1004);
+}
+        if(EvtHandle->weights()[iWeight].id == "1005-NNLOPS"){
+                        _weightsLHE.push_back(EvtHandle->weights()[iWeight].wgt/EvtHandle->originalXWGTUP());
+                        weightid_.push_back(1005);
+}
+        if(EvtHandle->weights()[iWeight].id == "1008-NNLOPS"){
+                        _weightsLHE.push_back(EvtHandle->weights()[iWeight].wgt/EvtHandle->originalXWGTUP());
+                        weightid_.push_back(1008);
+}
+//		case "1007-NNLOPS":
+        if(EvtHandle->weights()[iWeight].id == "1007-NNLOPS"){
+                        _weightsLHE.push_back(EvtHandle->weights()[iWeight].wgt/EvtHandle->originalXWGTUP());
+                        weightid_.push_back(1007);
+}
+
+//		case "1009-NNLOPS":
+        if(EvtHandle->weights()[iWeight].id == "1009-NNLOPS"){ 
+                       _weightsLHE.push_back(EvtHandle->weights()[iWeight].wgt/EvtHandle->originalXWGTUP());
+                        weightid_.push_back(1009);
+}
+//		case "1001":
+//                        _weightsLHE.push_back(EvtHandle->weights()[iWeight].wgt/EvtHandle->originalXWGTUP());
+//                        weightid_.push_back('1001');
+//                        break;
+//		case "1002":
+//                        _weightsLHE.push_back(EvtHandle->weights()[iWeight].wgt/EvtHandle->originalXWGTUP());
+//                        weightid_.push_back('1002');
+//                        break;
+//		case "1003":
+//                        _weightsLHE.push_back(EvtHandle->weights()[iWeight].wgt/EvtHandle->originalXWGTUP());
+//                        weightid_.push_back('1003');
+//                        break;
+//		case "1004":
+//                        _weightsLHE.push_back(EvtHandle->weights()[iWeight].wgt/EvtHandle->originalXWGTUP());
+//                        weightid_.push_back('1004');
+//		case "1005":
+//                        _weightsLHE.push_back(EvtHandle->weights()[iWeight].wgt/EvtHandle->originalXWGTUP());                      
+//                        weightid_.push_back('1005');
+//                        break;
+//		case "1006":
+//                        _weightsLHE.push_back(EvtHandle->weights()[iWeight].wgt/EvtHandle->originalXWGTUP());
+//                        weightid_.push_back('1006');
+//                        break;
+//		case "1007":
+//                        _weightsLHE.push_back(EvtHandle->weights()[iWeight].wgt/EvtHandle->originalXWGTUP());
+//                        weightid_.push_back('1007');
+//                        break;
+//		case "1008":
+//                        _weightsLHE.push_back(EvtHandle->weights()[iWeight].wgt/EvtHandle->originalXWGTUP());
+//                        weightid_.push_back('1008');
+//                        break;
+//		case "1009":
+//                        _weightsLHE.push_back(EvtHandle->weights()[iWeight].wgt/EvtHandle->originalXWGTUP());
+//                        weightid_.push_back('1009');
+//			break;
+
+		   
+
+
+
+
+  
+
+
+
+
+//std::cout << EvtHandle->weights()[iWeight].id << std::endl;
+
+//  if(EvtHandle->weights()[iWeight].id == "1009-NNLOPS") weight1001 = EvtHandle->weights()[iWeight].wgt;
+//  _weightsLHE.push_back( EvtHandle->weights()[iWeight].wgt/EvtHandle->originalXWGTUP() ); 
 //  std::cout << " weightLHE[" << iWeight << "] = " << (EvtHandle->weights()[iWeight].wgt/EvtHandle->originalXWGTUP()) << std::endl;
 //  cout << "productLHEHandle->originalXWGTUP() = " << EvtHandle->originalXWGTUP() << endl;
  }
+  _weightsnominalLHE = EvtHandle->originalXWGTUP();
 
- std::vector<std::string> comments_LHE;
- std::vector<std::string>::const_iterator it_end = (*(EvtHandle.product())).comments_end();
-  std::vector<std::string>::const_iterator it = (*(EvtHandle.product())).comments_begin();
-  for(; it != it_end; it++) {
-   comments_LHE.push_back (*it);
-  }
 
- for (unsigned int iComm = 0; iComm<comments_LHE.size(); iComm++) {
-//cout << "comments_LHE = " << comments_LHE.at(iComm) << endl;
-}
+//////////////CCCCCCCCOOOOOOOOOMMMMMENTED
+// std::vector<std::string> comments_LHE;
+// std::vector<std::string>::const_iterator it_end = (*(EvtHandle.product())).comments_end();
+//  std::vector<std::string>::const_iterator it = (*(EvtHandle.product())).comments_begin();
+//  for(; it != it_end; it++) {
+//   comments_LHE.push_back (*it);
+//  }
+//
+// for (unsigned int iComm = 0; iComm<comments_LHE.size(); iComm++) {
+////cout << "comments_LHE = " << comments_LHE.at(iComm) << endl;
+//}
 
 //edm::Handle<LHERunInfoProduct> run; 
 //typedef std::vector<LHERunInfoProduct::Header>::const_iterator headers_const_iterator;
@@ -816,19 +1020,19 @@ return;
 //}
 
 
-int whichWeight = 1;
+//int whichWeight = 1;
 
 //cout << "theWeight before = " << theWeight << endl;
 
 //cout << "Numerator =  " << EvtHandle->weights()[1].wgt << endl;
 //cout << "Denominator = " << EvtHandle->originalXWGTUP() << endl;
 
-numWeight_ = EvtHandle->weights()[whichWeight].wgt;
-denomWeight_ = EvtHandle->originalXWGTUP();
+//numWeight_ = EvtHandle->weights()[whichWeight].wgt;
+//denomWeight_ = EvtHandle->originalXWGTUP();
 
-theWeight *= EvtHandle->weights()[whichWeight].wgt/EvtHandle->originalXWGTUP(); 
+//theWeight *= EvtHandle->weights()[whichWeight].wgt/EvtHandle->originalXWGTUP(); 
 
-finalWeight_ = theWeight;
+//finalWeight_ = theWeight;
 
 //cout << " theWeight after = " << theWeight << endl;
 
