@@ -3,10 +3,12 @@ config = config()
 
 config.section_('General')
 config.General.transferOutputs = True
-config.General.requestName = 'WW_NNLOPS'
+#config.General.requestName = 'WW_NNLOPS'
+config.General.requestName = 'WW_Powheg'
 config.General.transferLogs = False
 #config.General.workarea = 'ww_analysis'
-config.General.workArea = 'crab_WW_NNLOPS'
+#config.General.workArea = 'crab_WW_NNLOPS'
+config.General.workArea = 'crab_WW_Powheg'
 
 config.section_('JobType')
 config.JobType.pluginName  = 'Analysis'
@@ -18,13 +20,15 @@ config.JobType.allowUndistributedCMSSW = True  # To fix cmssw releases
 
 config.section_('Data')
 config.Data.inputDBS = 'global'
-config.Data.inputDataset = '/WWJTo2L2Nu_NNLOPS_TuneCUEP8M1_13TeV-powheg-pythia8/RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3-v1/MINIAODSIM'
+#config.Data.inputDataset = '/WWJTo2L2Nu_NNLOPS_TuneCUEP8M1_13TeV-powheg-pythia8/RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3-v1/MINIAODSIM'
+config.Data.inputDataset = '/WWTo2L2Nu_13TeV-powheg/RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3-v2/MINIAODSIM'
 config.Data.splitting    = 'FileBased'  #'LumiBased'
-config.Data.unitsPerJob  = 10  # Since files based, 10 files per job
+config.Data.unitsPerJob  = 5  # Since files based, 10 files per job
 config.Data.publication = False
 #config.Data.inputDBS     = 'https://cmsweb.cern.ch/dbs/prod/global/DBSReader/'
 #config.Data.outLFN       = '/store/user/hongyi/ww_data'_
-config.Data.outLFNDirBase       = '/store/group/phys_higgs/cmshww/arun/WW/MCStudies/WW_NNLOPS'
+#config.Data.outLFNDirBase       = '/store/group/phys_higgs/cmshww/arun/WW/MCStudies/WW_NNLOPS'
+config.Data.outLFNDirBase       = '/store/group/phys_higgs/cmshww/arun/WW/MCStudies/WW_Powheg'
 
 config.section_('Site')
 config.Site.storageSite = 'T2_CH_CERN'
