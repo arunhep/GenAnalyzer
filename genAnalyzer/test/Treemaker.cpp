@@ -3,7 +3,7 @@
 double deltaR(double eta1, double phi1, double eta2, double phi2);
 double DeltaPhi(double phi1, double phi2);
 using namespace std;
-void Treemaker_Pythia_v2()
+void Treemaker()
 {
 
 //TFile f1("HWW_125GeV_13TeV_Powheg_withWeight.root");
